@@ -1,65 +1,35 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { AudioPlayer } from './audioPlayer'
 
-let win: BrowserWindow | null = null
+let mainWindow: BrowserWindow | null = null
 let audioPlayer: AudioPlayer | null = null
 
-async function createWindow() {
-  win = new BrowserWindow({
+const createWindow = () => {
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: false,  // ノード統合を無効化
-      contextIsolation: true,  // コンテキスト分離を有効化
-      preload: join(__dirname, '../preload/index.js')  // プリロードスクリプトのパス
+      nodeIntegration: true,
+      contextIsolation: true,
+      preload: join(__dirname, '../preload/index.js')
     }
   })
 
-  // 開発モードの場合
   if (!app.isPackaged) {
-    await win.loadURL('http://localhost:5173')
-    win.webContents.openDevTools()
+    mainWindow.loadURL('http://localhost:5173')
+    mainWindow.webContents.openDevTools()
   } else {
-    win.loadFile(join(__dirname, '../../dist/index.html'))
+    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
-  // オーディオプレイヤーの初期化
-  audioPlayer = new AudioPlayer()
-
-  // IPCハンドラーの設定
-  setupIPCHandlers()
 }
 
-// IPCハンドラーの設定
-function setupIPCHandlers() {
-  ipcMain.handle('play-audio', async (event, audioFile) => {
-    console.log('音声再生リクエスト:', audioFile)
-    try {
-      const audioPath = join(app.getAppPath(), 'assets/audio', audioFile)
-      console.log('音声ファイルパス:', audioPath)
-      await audioPlayer?.play(audioPath)
-    } catch (error) {
-      console.error('音声再生エラー:', error)
-      throw error
-    }
-  })
-
-  ipcMain.handle('stop-audio', async () => {
-    console.log('音声停止リクエスト')
-    try {
-      await audioPlayer?.stop()
-    } catch (error) {
-      console.error('音声停止エラー:', error)
-      throw error
-    }
-  })
-}
-
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  audioPlayer = new AudioPlayer(app.getPath('userData'))
+})
 
 app.on('window-all-closed', () => {
-  win = null
   if (process.platform !== 'darwin') {
     app.quit()
   }

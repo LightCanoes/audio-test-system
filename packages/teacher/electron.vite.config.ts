@@ -22,10 +22,10 @@ export default defineConfig({
       outDir: 'dist'
     },
     plugins: [vue()],
-    server: {
-      host: true, // LANへのアクセスを許可
-      port: 5173,
-      strictPort: true // Make sure the port used is fixed
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src/renderer')
+      }
     }
   }
 })
