@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "main": "dist-electron/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
-    "dev:network": "NETWORK=true electron-vite dev",
-    "build": "electron-vite build",
-    "preview": "electron-vite preview",
-    "postinstall": "electron-builder install-app-deps"
+    "dev": "npx electron-vite dev",
+    "build": "npx electron-vite build",
+    "preview": "npx electron-vite preview",
+    "package": "npm run build && npx electron-builder build"
   },
   "dependencies": {
     "vue": "^3.3.4",
     "ffmpeg-static": "^5.2.0",
-    "ffprobe-static": "^3.1.0"
+    "ffprobe-static": "^3.1.0",
+    "@heroicons/vue": "^2.0.18"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -28,6 +28,15 @@
     "vite": "^5.0.0"
   },
   "build": {
+    "appId": "com.audio-test.teacher",
+    "productName": "Audio Test Teacher",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron",
+      "dist"
+    ],
     "extraFiles": [
       {
         "from": "node_modules/ffmpeg-static/ffmpeg",
@@ -37,6 +46,15 @@
         "from": "node_modules/ffprobe-static/ffprobe",
         "to": "Resources/ffprobe" 
       }
-    ]
+    ],
+    "mac": {
+      "target": ["dmg"]
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "linux": {
+      "target": ["AppImage"]
+    }
   }
 }
