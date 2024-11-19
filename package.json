@@ -1,0 +1,15 @@
+
+{
+  "name": "audio-test-system",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "package": "pnpm --filter @audio-test/teacher package"
+  },
+  "devDependencies": {
+    "pnpm": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
