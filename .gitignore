@@ -1,0 +1,9 @@
+
+.DS_Store
+packages/.DS_Store
+packages/server/.DS_Store
+packages/student/.DS_Store
+packages/student/src/.DS_Store
+packages/teacher/.DS_Store
+packages/teacher/src/.DS_Store
+packages/teacher/src/renderer/.DS_Store
