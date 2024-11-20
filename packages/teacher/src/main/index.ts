@@ -1,16 +1,20 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { AudioPlayer } from './audioPlayer'
+import { InstructionManager } from './instructionManager'
+import { SequenceManager } from './sequenceManager'
 
 let mainWindow: BrowserWindow | null = null
 let audioPlayer: AudioPlayer | null = null
+let instructionManager: InstructionManager | null = null
+let sequenceManager: SequenceManager | null = null
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
       contextIsolation: true,
       preload: join(__dirname, '../preload/index.js')
     }
@@ -26,7 +30,12 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   createWindow()
-  audioPlayer = new AudioPlayer(app.getPath('userData'))
+  
+  // Initialize all managers
+  const userDataPath = app.getPath('userData')
+  audioPlayer = new AudioPlayer(userDataPath)
+  instructionManager = new InstructionManager(userDataPath)
+  sequenceManager = new SequenceManager(userDataPath)
 })
 
 app.on('window-all-closed', () => {
