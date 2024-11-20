@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import TestSequence from './components/TestSequence.vue'
 import AudioFiles from './components/AudioFiles.vue'
 import InstructionManager from './components/InstructionManager.vue'

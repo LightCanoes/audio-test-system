@@ -31,12 +31,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import {
-  PlayCircleIcon,
-  PauseCircleIcon,
-  StopCircleIcon,
-  ArrowPathIcon
+  PlusIcon,
+  PencilSquareIcon,
+  TrashIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/solid'
   
   interface Instruction {
