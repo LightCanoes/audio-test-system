@@ -3,3 +3,4 @@
 **/dist-electron
 
 
+/packages/teacher/dist-electron
