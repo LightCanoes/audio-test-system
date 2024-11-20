@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   importAudioFiles: () => ipcRenderer.invoke('import-audio-files'),
   deleteAudioFile: (fileId: string) => ipcRenderer.invoke('delete-audio-file', fileId),
   playAudio: (path: string) => ipcRenderer.invoke('play-audio', path),
+  pauseAudio: () => ipcRenderer.invoke('pause-audio'),
+  resumeAudio: () => ipcRenderer.invoke('resume-audio'),
   stopAudio: () => ipcRenderer.invoke('stop-audio'),
 
   // テストシーケンス関連
@@ -47,6 +49,12 @@ export type ElectronAPI = {
 
 declare global {
   interface Window {
-    electronAPI: ElectronAPI
+    electronAPI: {
+      // ... 其他类型 ...
+      playAudio: (path: string) => Promise<void>
+      pauseAudio: () => Promise<void>
+      resumeAudio: () => Promise<void>
+      stopAudio: () => Promise<void>
+    }
   }
 }

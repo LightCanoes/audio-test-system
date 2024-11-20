@@ -1,15 +1,14 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
-import { AudioPlayer } from './audioPlayer'
-import { InstructionManager } from './instructionManager'
-import { SequenceManager } from './sequenceManager'
+import { AudioManager } from './audioManager'
+import { TestManager } from './testManager'
 
 let mainWindow: BrowserWindow | null = null
-let audioPlayer: AudioPlayer | null = null
-let instructionManager: InstructionManager | null = null
-let sequenceManager: SequenceManager | null = null
+let testWindow: BrowserWindow | null = null
+let audioManager: AudioManager | null = null
+let testManager: TestManager | null = null
 
-const createWindow = () => {
+const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -28,14 +27,50 @@ const createWindow = () => {
   }
 }
 
+const createTestWindow = async (testData: any) => {
+  if (testWindow) {
+    testWindow.focus()
+    return
+  }
+
+  testWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: join(__dirname, '../preload/index.js')
+    }
+  })
+
+  if (!app.isPackaged) {
+    await testWindow.loadURL('http://localhost:5173/#/test')
+    testWindow.webContents.openDevTools()
+  } else {
+    await testWindow.loadFile(join(__dirname, '../renderer/index.html'), {
+      hash: 'test'
+    })
+  }
+
+  // 发送测试数据到新窗口
+  testWindow.webContents.send('init-test-data', testData)
+
+  testWindow.on('closed', () => {
+    testWindow = null
+    // 通知服务器测试结束
+    testManager?.endTest()
+  })
+}
+
 app.whenReady().then(() => {
-  createWindow()
+  createMainWindow()
   
-  // Initialize all managers
-  const userDataPath = app.getPath('userData')
-  audioPlayer = new AudioPlayer(userDataPath)
-  instructionManager = new InstructionManager(userDataPath)
-  sequenceManager = new SequenceManager(userDataPath)
+  // 初始化管理器
+  audioManager = new AudioManager(app.getPath('userData'))
+  testManager = new TestManager()
+  
+  // 设置IPC处理程序
+  setupIpcHandlers()
 })
 
 app.on('window-all-closed', () => {
@@ -46,6 +81,20 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
+    createMainWindow()
   }
 })
+
+const setupIpcHandlers = () => {
+  // 创建测试窗口
+  ipcMain.handle('create-test-window', async (event, testData) => {
+    await createTestWindow(testData)
+  })
+
+  // 广播测试状态更新
+  ipcMain.handle('broadcast-test-state', (event, state) => {
+    if (testWindow) {
+      testWindow.webContents.send('test-state-update', state)
+    }
+  })
+}

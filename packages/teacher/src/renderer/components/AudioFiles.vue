@@ -1,5 +1,4 @@
 <template>
-  <!-- template 内容保持不变，只需更新图标名称 -->
   <div class="bg-white shadow rounded-lg p-4">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">音声ファイル</h2>
@@ -28,25 +27,52 @@
         </div>
 
         <div class="flex items-center space-x-2">
-          <button
-            @click="playAudio(file)"
-            class="p-2 rounded text-white"
-            :class="[
-              currentlyPlaying === file.id
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-blue-500 hover:bg-blue-600'
-            ]"
-          >
-            <StopCircleIcon v-if="currentlyPlaying === file.id" class="w-4 h-4" />
-            <PlayCircleIcon v-else class="w-4 h-4" />
-          </button>
+          <div class="flex space-x-1">
+            <button 
+              v-if="isPaused && currentlyPlaying === file.id"
+              @click="resumeAudio"
+              class="p-2 rounded bg-green-500 text-white hover:bg-green-600"
+              title="再生"
+            >
+              <PlayCircleIcon class="w-4 h-4" />
+            </button>
+            <button 
+              v-else-if="currentlyPlaying === file.id"
+              @click="pauseAudio"
+              class="p-2 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+              title="一時停止"
+            >
+              <PauseCircleIcon class="w-4 h-4" />
+            </button>
+            <button
+              v-if="currentlyPlaying === file.id"
+              @click="stopAudio"
+              class="p-2 rounded bg-red-500 text-white hover:bg-red-600"
+              title="停止"
+            >
+              <StopCircleIcon class="w-4 h-4" />
+            </button>
+            <button
+              v-else
+              @click="playAudio(file)"
+              class="p-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+              title="再生"
+            >
+              <PlayCircleIcon class="w-4 h-4" />
+            </button>
+          </div>
           <button
             @click="deleteAudioFile(file.id)"
             class="p-2 rounded bg-red-500 text-white hover:bg-red-600"
+            title="削除"
           >
             <TrashIcon class="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      <div v-if="audioFiles.length === 0" class="text-center py-8 text-gray-500">
+        音声ファイルがありません
       </div>
     </div>
   </div>
@@ -56,9 +82,10 @@
 import { ref, onMounted } from 'vue'
 import {
   PlayCircleIcon,
+  PauseCircleIcon,
   StopCircleIcon,
-  PlusIcon,
-  TrashIcon
+  TrashIcon,
+  PlusIcon
 } from '@heroicons/vue/24/solid'
 
 interface AudioFile {
@@ -68,9 +95,20 @@ interface AudioFile {
   duration: number
 }
 
+// 初期化
 const audioFiles = ref<AudioFile[]>([])
-const currentlyPlaying = ref<string | null>(null)
 const isImporting = ref(false)
+const currentlyPlaying = ref<string | null>(null)
+const isPaused = ref(false)
+
+// 音声ファイル一覧の取得
+onMounted(async () => {
+  try {
+    audioFiles.value = await window.electronAPI.getAudioFiles()
+  } catch (error) {
+    console.error('Failed to load audio files:', error)
+  }
+})
 
 const formatDuration = (seconds: number) => {
   const minutes = Math.floor(seconds / 60)
@@ -96,19 +134,43 @@ const importAudioFiles = async () => {
 
 const playAudio = async (file: AudioFile) => {
   try {
-    if (currentlyPlaying.value === file.id) {
-      await window.electronAPI.stopAudio()
-      currentlyPlaying.value = null
-    } else {
-      if (currentlyPlaying.value) {
-        await window.electronAPI.stopAudio()
-      }
-      await window.electronAPI.playAudio(file.path)
-      currentlyPlaying.value = file.id
-    }
+    currentlyPlaying.value = file.id
+    isPaused.value = false
+    await window.electronAPI.playAudio(file.path)
+    // 播放完成后重置状态
+    currentlyPlaying.value = null
+    isPaused.value = false
   } catch (error) {
     console.error('Failed to play audio:', error)
     currentlyPlaying.value = null
+    isPaused.value = false
+  }
+}
+const pauseAudio = async () => {
+  try {
+    isPaused.value = true
+    await window.electronAPI.pauseAudio()
+  } catch (error) {
+    console.error('Failed to pause audio:', error)
+  }
+}
+
+const resumeAudio = async () => {
+  try {
+    isPaused.value = false
+    await window.electronAPI.resumeAudio()
+  } catch (error) {
+    console.error('Failed to resume audio:', error)
+  }
+}
+
+const stopAudio = async () => {
+  try {
+    await window.electronAPI.stopAudio()
+    currentlyPlaying.value = null
+    isPaused.value = false
+  } catch (error) {
+    console.error('Failed to stop audio:', error)
   }
 }
 
@@ -120,13 +182,4 @@ const deleteAudioFile = async (fileId: string) => {
     console.error('Failed to delete audio file:', error)
   }
 }
-
-onMounted(async () => {
-  try {
-    const files = await window.electronAPI.getAudioFiles()
-    audioFiles.value = files
-  } catch (error) {
-    console.error('Failed to load audio files:', error)
-  }
-})
 </script>

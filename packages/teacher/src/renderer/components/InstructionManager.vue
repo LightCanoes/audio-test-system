@@ -1,34 +1,3 @@
-<template>
-  <div class="bg-white shadow rounded-lg p-4">
-    <!-- ... その他のテンプレート内容 ... -->
-    <div class="grid grid-cols-3 gap-4 mb-4">
-      <button
-        @click="$emit('start-test')"
-        :disabled="isPlaying"
-        class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50"
-      >
-        <PlayCircleIcon class="w-4 h-4 mr-2" />
-        テスト開始
-      </button>
-      <button
-        @click="$emit('pause-test')"
-        :disabled="!isPlaying"
-        class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md disabled:opacity-50"
-      >
-        <PauseCircleIcon class="w-4 h-4 mr-2" />
-        一時停止
-      </button>
-      <button
-        @click="$emit('stop-test')"
-        :disabled="!isPlaying && !isPaused"
-        class="inline-flex items-center justify-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md disabled:opacity-50"
-      >
-        <StopCircleIcon class="w-4 h-4 mr-2" />
-        テスト終了
-      </button>
-    </div>
-  </div>
-</template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
