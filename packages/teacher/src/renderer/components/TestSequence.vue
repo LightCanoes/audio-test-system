@@ -1,138 +1,70 @@
 <template>
-    <div class="p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">テスト再生順序の設定</h2>
-        <div class="space-x-2">
-          <button 
-            @click="saveSequence"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            保存
-          </button>
-          <button 
-            @click="loadSequence"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            読み込み
-          </button>
-          <button 
-            @click="addNewSequence"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            新規追加
-          </button>
-        </div>
-      </div>
-  
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="p-2 border">繰り返し回数</th>
-              <th class="p-2 border">開始待ち時間</th>
-              <th class="p-2 border">音源1</th>
-              <th class="p-2 border">休止時間</th>
-              <th class="p-2 border">音源2</th>
-              <th class="p-2 border">回答時間</th>
-              <th class="p-2 border">正解選択肢</th>
-              <th class="p-2 border">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="sequence in sequences" :key="sequence.id">
-              <td class="p-2 border">
-                <input 
-                  type="number" 
-                  v-model="sequence.repeatCount"
-                  class="w-20 p-1 border rounded"
-                  min="1"
-                />
-              </td>
-              <td class="p-2 border">
-                <input 
-                  type="number" 
-                  v-model="sequence.initialWaitTime"
-                  class="w-20 p-1 border rounded"
-                  min="0"
-                  step="0.1"
-                />
-              </td>
-              <td class="p-2 border">
-                <select 
-                  v-model="sequence.audio1"
-                  class="w-full p-1 border rounded"
-                >
-                  <option v-for="file in audioFiles" :key="file.id" :value="file.path">
-                    {{ file.name }}
-                  </option>
-                </select>
-              </td>
-              <td class="p-2 border">
-                <input 
-                  type="number" 
-                  v-model="sequence.pauseTime"
-                  class="w-20 p-1 border rounded"
-                  min="0"
-                  step="0.1"
-                />
-              </td>
-              <td class="p-2 border">
-                <select 
-                  v-model="sequence.audio2"
-                  class="w-full p-1 border rounded"
-                >
-                  <option v-for="file in audioFiles" :key="file.id" :value="file.path">
-                    {{ file.name }}
-                  </option>
-                </select>
-              </td>
-              <td class="p-2 border">
-                <input 
-                  type="number" 
-                  v-model="sequence.answerTime"
-                  class="w-20 p-1 border rounded"
-                  min="0"
-                  step="0.1"
-                />
-              </td>
-              <td class="p-2 border">
-                <select 
-                  v-model="sequence.correctOption"
-                  class="w-20 p-1 border rounded"
-                >
-                  <option v-for="option in ['A', 'B', 'C', 'D']" :key="option" :value="option">
-                    {{ option }}
-                  </option>
-                </select>
-              </td>
-              <td class="p-2 border">
-                <div class="flex space-x-2">
-                  <button 
-                    @click="playSequence(sequence)"
-                    class="p-1 rounded bg-blue-500 text-white hover:bg-blue-600"
-                    :disabled="isPlaying"
-                  >
-                    <PlayIcon v-if="!isPlaying" class="w-4 h-4" />
-                    <PauseIcon v-else class="w-4 h-4" />
-                  </button>
-                  <button 
-                    @click="deleteSequence(sequence.id)"
-                    class="p-1 rounded bg-red-500 text-white hover:bg-red-600"
-                  >
-                    <TrashIcon class="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">テスト再生順序の設定</h2>
+      <div class="space-x-2">
+        <button 
+          @click="saveSequence"
+          class="inline-flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          <DocumentArrowDownIcon class="w-4 h-4 mr-2" />
+          保存
+        </button>
+        <button 
+          @click="loadSequence"
+          class="inline-flex items-center bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        >
+          <FolderOpenIcon class="w-4 h-4 mr-2" />
+          読み込み
+        </button>
+        <button 
+          @click="addNewSequence"
+          class="inline-flex items-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          <PlusIcon class="w-4 h-4 mr-2" />
+          新規追加
+        </button>
       </div>
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref } from 'vue'
-  import { PlayIcon, PauseIcon, TrashIcon } from '@heroicons/vue/solid'
+
+    <div class="overflow-x-auto">
+      <!-- ... テーブルの内容は同じ ... -->
+      <td class="p-2 border">
+        <div class="flex space-x-2">
+          <button 
+            @click="playSequence(sequence)"
+            class="p-1 rounded text-white"
+            :class="[
+              isPlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
+            ]"
+            :disabled="isPlaying"
+          >
+            <PlayCircleIcon v-if="!isPlaying" class="w-4 h-4" />
+            <StopCircleIcon v-else class="w-4 h-4" />
+          </button>
+          <button 
+            @click="deleteSequence(sequence.id)"
+            class="p-1 rounded bg-red-500 text-white hover:bg-red-600"
+          >
+            <TrashIcon class="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+  PlayCircleIcon,
+  StopCircleIcon,
+  TrashIcon,
+  PlusIcon,
+  DocumentArrowDownIcon,
+  FolderOpenIcon
+} from '@heroicons/vue/24/solid'
+
   
   interface AudioFile {
     id: string

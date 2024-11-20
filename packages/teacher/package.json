@@ -12,7 +12,7 @@
     "vue": "^3.3.4",
     "ffmpeg-static": "^5.2.0",
     "ffprobe-static": "^3.1.0",
-    "@heroicons/vue": "^2.0.18"
+    "@heroicons/vue": "^2.0.18"  
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

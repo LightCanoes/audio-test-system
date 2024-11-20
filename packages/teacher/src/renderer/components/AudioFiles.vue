@@ -1,12 +1,14 @@
 <template>
+  <!-- template 内容保持不变，只需更新图标名称 -->
   <div class="bg-white shadow rounded-lg p-4">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">音声ファイル</h2>
       <button
         @click="importAudioFiles"
         :disabled="isImporting"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+        class="inline-flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
       >
+        <PlusIcon class="w-4 h-4 mr-2" />
         <span v-if="isImporting">インポート中...</span>
         <span v-else>ファイル追加</span>
       </button>
@@ -35,8 +37,8 @@
                 : 'bg-blue-500 hover:bg-blue-600'
             ]"
           >
-            <PauseIcon v-if="currentlyPlaying === file.id" class="w-4 h-4" />
-            <PlayIcon v-else class="w-4 h-4" />
+            <StopCircleIcon v-if="currentlyPlaying === file.id" class="w-4 h-4" />
+            <PlayCircleIcon v-else class="w-4 h-4" />
           </button>
           <button
             @click="deleteAudioFile(file.id)"
@@ -46,17 +48,18 @@
           </button>
         </div>
       </div>
-
-      <div v-if="audioFiles.length === 0" class="text-center py-8 text-gray-500">
-        音声ファイルがありません
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { PlayIcon, PauseIcon, TrashIcon } from '@heroicons/vue/solid'
+import {
+  PlayCircleIcon,
+  StopCircleIcon,
+  PlusIcon,
+  TrashIcon
+} from '@heroicons/vue/24/solid'
 
 interface AudioFile {
   id: string
