@@ -1,7 +1,5 @@
-*/.DS_Store
-*/.node_modules
-*/.dist-electron
-/node_modules
-/packages/server/node_modules
-/packages/student/node_modules
-/packages/teacher/node_modules
+**/.DS_Store
+**/node_modules
+**/dist-electron
+
+
